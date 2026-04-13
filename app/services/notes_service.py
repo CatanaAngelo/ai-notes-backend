@@ -6,7 +6,7 @@ from app.models import Note, User
 from app.schemas import NoteCreate
 from app.ai_client import summarize
 
-def get_notes(db: Session, user: User, limit: int, offset: int, query=None):
+def get_notes(db: Session, user: User, limit: int, offset: int, query: str | None = None):
     q = db.query(Note).filter(Note.user_id == user.id)
 
     if query:
