@@ -9,6 +9,9 @@ from app.db import get_db
 from app.models import User
 
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
@@ -31,6 +34,8 @@ def create_access_token(data: dict) -> str:
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
+
+    logger.info("Access token created!")
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
@@ -44,14 +49,17 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         email = payload.get("sub")
 
         if email is None:
+            logger.warning("Invalid credentials!", extra={"email": email})
             raise credentials_exception
     
     except JWTError:
+        logger.warning("JWT decode failed!", extra={"email": email})
         raise credentials_exception
     
     user = db.query(User).filter(User.email == email).first()
 
     if user is None:
+        logger.warning("Authenticated user not found!", extra={"email": email})
         raise credentials_exception
     
     return user

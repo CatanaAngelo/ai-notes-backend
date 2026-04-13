@@ -6,6 +6,10 @@ from app.models import Note, User
 from app.schemas import NoteCreate
 from app.ai_client import summarize
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 def get_notes(db: Session, user: User, limit: int, offset: int, query: str | None = None):
     q = db.query(Note).filter(Note.user_id == user.id)
 
@@ -35,6 +39,7 @@ def create_note(db: Session, user: User, new_note: NoteCreate):
     db.commit()
     db.refresh(note)
     
+    logger.info("Note created!", extra={"note_id": note.id, "user_id": user.id})
     return note
 
 
@@ -45,8 +50,10 @@ def get_note(db: Session, user: User, note_id: int):
     ).first()
 
     if note is None:
+        logger.warning("Note not found!", extra={"note_id": note_id, "user_id": user.id})
         raise HTTPException(status_code=404, detail="Note not found")
     
+    logger.info("Note found!", extra={"note_id": note.id, "user_id": user.id})
     return note
 
 
@@ -57,6 +64,7 @@ def update_note(db: Session, user: User, note_id: int, new_note: NoteCreate):
     ).first()
 
     if note is None:
+        logger.warning("Note not found!", extra={"note_id": note_id, "user_id": user.id})
         raise HTTPException(status_code=404, detail="Note not found")
     
     note.title = new_note.title
@@ -65,6 +73,7 @@ def update_note(db: Session, user: User, note_id: int, new_note: NoteCreate):
     db.commit()
     db.refresh(note)
 
+    logger.info("Note updated!", extra={"note_id": note.id, "user_id": user.id})
     return note
 
 
@@ -75,11 +84,13 @@ def delete_note(db: Session, user: User, note_id: int):
     ).first()
 
     if note is None:
+        logger.warning("Note not found!", extra={"note_id": note_id, "user_id": user.id})
         raise HTTPException(status_code=404, detail="Note not found")
 
     db.delete(note)
     db.commit()
 
+    logger.info("Note deleted!", extra={"note_id": note.id, "user_id": user.id})
     return note
 
 
@@ -90,10 +101,12 @@ def summarize_note(db: Session, user: User, note_id: int):
     ).first()
 
     if not note:
+        logger.warning("Note not found!", extra={"note_id": note_id, "user_id": user.id})
         raise HTTPException(status_code=404, detail="Note not found")
     
     summary = summarize(note.content)
 
+    logger.info("Note summarized successfully", extra={"note_id": note.id, "user_id": user.id})
     return {
         "note_id": note.id,
         "summary": summary,

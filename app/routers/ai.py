@@ -13,7 +13,8 @@ router = APIRouter()
 def talk_with_openai(req: AskAIRequest) -> AskAIResponse:
     try:
         answer = ai_service.generate_ai_answer(req)
+        logger.info("AI request completed successfully", extra={"model": req.model})
         return AskAIResponse(answer=answer)
     except Exception:
-        logger.exception("AI is not responding")
+        logger.exception("AI is not responding", extra={"model": req.model})
         raise HTTPException(status_code=500, detail="AI service error")
