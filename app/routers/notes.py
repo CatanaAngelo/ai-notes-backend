@@ -21,7 +21,7 @@ def get_notes(
 ):
     return notes_service.get_notes(db, current_user, limit, offset, query)
 
-@router.post("/notes/", response_model=NoteResponse)
+@router.post("/notes/", response_model=NoteResponse, status_code=201)
 def add_new_note(
     new_note: NoteCreate,
     db: Session = Depends(get_db),

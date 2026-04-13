@@ -6,15 +6,6 @@ from app.models import Note
 from app.schemas import NoteCreate
 from app.ai_client import summarize
 
-# def get_notes(db: Session, user, limit: int, offset: int):
-#     return (
-#         db.query(Note)
-#         .filter(Note.user_id == user.id) # aici fac pentru un singur user
-#         .order_by(Note.id) # ca sa nu intoarca rezultatele intro ordine nedeterminata
-#         .offset(offset)
-#         .limit(limit)
-#         .all())
-
 def get_notes(db: Session, user, limit: int, offset: int, query=None):
     q = db.query(Note).filter(Note.user_id == user.id)
 

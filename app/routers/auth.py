@@ -10,7 +10,7 @@ from app.models import User
 
 router = APIRouter()
 
-@router.post("/register", response_model=UserResponse)
+@router.post("/register", response_model=UserResponse, status_code=201)
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
     return users_service.create_user(db, user_data)
 
