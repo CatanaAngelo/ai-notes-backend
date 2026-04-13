@@ -10,7 +10,7 @@ def create_user(db: Session, user_data: UserCreate) -> User:
     existing_user = db.query(User).filter(User.email == user_data.email).first()
 
     if existing_user is not None:
-        raise HTTPException(status_code=409, detail="Email already registred")
+        raise HTTPException(status_code=409, detail="Email already registered")
     
     user = User(
         email=user_data.email,

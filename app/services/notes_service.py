@@ -2,11 +2,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from fastapi import HTTPException
 
-from app.models import Note
+from app.models import Note, User
 from app.schemas import NoteCreate
 from app.ai_client import summarize
 
-def get_notes(db: Session, user, limit: int, offset: int, query=None):
+def get_notes(db: Session, user: User, limit: int, offset: int, query=None):
     q = db.query(Note).filter(Note.user_id == user.id)
 
     if query:
@@ -24,7 +24,7 @@ def get_notes(db: Session, user, limit: int, offset: int, query=None):
         .all()
     )
 
-def create_note(db: Session, user, new_note: NoteCreate):
+def create_note(db: Session, user: User, new_note: NoteCreate):
     note = Note(
         title=new_note.title,
         content=new_note.content,
@@ -38,15 +38,7 @@ def create_note(db: Session, user, new_note: NoteCreate):
     return note
 
 
-def get_note(db: Session, user, note_id: int):
-    # old version pentru cand nu aveam autentificare
-
-    # note = db.get(Note, note_id)
-    # if note is None:
-    #     raise HTTPException(status_code=404, detail="Not found")
-    
-    # return note
-
+def get_note(db: Session, user: User, note_id: int):
     note = db.query(Note).filter(
         Note.id == note_id,
         Note.user_id == user.id
@@ -58,7 +50,7 @@ def get_note(db: Session, user, note_id: int):
     return note
 
 
-def update_note(db: Session, user, note_id: int, new_note: NoteCreate):
+def update_note(db: Session, user: User, note_id: int, new_note: NoteCreate):
     note = db.query(Note).filter(
         Note.id == note_id,
         Note.user_id == user.id
@@ -76,7 +68,7 @@ def update_note(db: Session, user, note_id: int, new_note: NoteCreate):
     return note
 
 
-def delete_note(db: Session, user, note_id: int):
+def delete_note(db: Session, user: User, note_id: int):
     note = db.query(Note).filter(
         Note.id == note_id,
         Note.user_id == user.id
@@ -91,7 +83,7 @@ def delete_note(db: Session, user, note_id: int):
     return note
 
 
-def summarize_note(db: Session, user, note_id: int):
+def summarize_note(db: Session, user: User, note_id: int):
     note = db.query(Note). filter(
         Note.id == note_id,
         Note.user_id == user.id
