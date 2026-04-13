@@ -11,8 +11,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 def get_notes(db: Session, user: User, limit: int, offset: int, query: str | None = None):
+    # Base query: only return notes belonging to the authenticated user.
     q = db.query(Note).filter(Note.user_id == user.id)
 
+    # Apply search filter if query is provided (case-insensitive).
     if query:
         q = q.filter(
             or_(
@@ -22,6 +24,7 @@ def get_notes(db: Session, user: User, limit: int, offset: int, query: str | Non
         )
 
     return (
+        # Order results by newest first for better UX.
         q.order_by(Note.created_at.desc())
         .offset(offset)
         .limit(limit)
@@ -29,10 +32,12 @@ def get_notes(db: Session, user: User, limit: int, offset: int, query: str | Non
     )
 
 def create_note(db: Session, user: User, new_note: NoteCreate):
+    # Attach the note to the authenticated user.
+    # We never accept user_id from request to prevent data manipulation.
     note = Note(
         title=new_note.title,
         content=new_note.content,
-        user_id=user.id # am adaugat user ca sa nu poata oricine face orice
+        user_id=user.id
         )
 
     db.add(note)
@@ -44,6 +49,7 @@ def create_note(db: Session, user: User, new_note: NoteCreate):
 
 
 def get_note(db: Session, user: User, note_id: int):
+    # Filter by both note id and user id to ensure users cannot access or modify notes they don't own.
     note = db.query(Note).filter(
         Note.id == note_id,
         Note.user_id == user.id
@@ -58,6 +64,7 @@ def get_note(db: Session, user: User, note_id: int):
 
 
 def update_note(db: Session, user: User, note_id: int, new_note: NoteCreate):
+    # Filter by both note id and user id to ensure users cannot access or modify notes they don't own.
     note = db.query(Note).filter(
         Note.id == note_id,
         Note.user_id == user.id
@@ -78,6 +85,7 @@ def update_note(db: Session, user: User, note_id: int, new_note: NoteCreate):
 
 
 def delete_note(db: Session, user: User, note_id: int):
+    # Filter by both note id and user id to ensure users cannot access or modify notes they don't own.
     note = db.query(Note).filter(
         Note.id == note_id,
         Note.user_id == user.id
@@ -95,6 +103,7 @@ def delete_note(db: Session, user: User, note_id: int):
 
 
 def summarize_note(db: Session, user: User, note_id: int):
+    # Filter by both note id and user id to ensure users cannot access or modify notes they don't own.
     note = db.query(Note). filter(
         Note.id == note_id,
         Note.user_id == user.id
@@ -104,6 +113,7 @@ def summarize_note(db: Session, user: User, note_id: int):
         logger.warning("Note not found!", extra={"note_id": note_id, "user_id": user.id})
         raise HTTPException(status_code=404, detail="Note not found")
     
+    # Send note content to AI service to generate a summary.
     summary = summarize(note.content)
 
     logger.info("Note summarized successfully", extra={"note_id": note.id, "user_id": user.id})

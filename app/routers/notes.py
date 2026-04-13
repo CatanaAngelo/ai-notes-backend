@@ -13,6 +13,7 @@ router = APIRouter()
 
 @router.get("/notes/", response_model=list[NoteResponse])
 def get_notes(
+    # Get notes for the authenticated user with optional pagination and search.
     limit: int = Query(default=10, ge=1),
     offset: int = Query(default=0, ge=0),
     query: Optional[str] = None,
@@ -23,6 +24,7 @@ def get_notes(
 
 @router.post("/notes/", response_model=NoteResponse, status_code=201)
 def add_new_note(
+    # Create a new note for the authenticated user.
     new_note: NoteCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -31,6 +33,7 @@ def add_new_note(
 
 @router.get("/notes/{note_id}", response_model=NoteResponse)
 def get_single_note(
+    # Get a single note from the authenticated user.
     note_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -40,6 +43,7 @@ def get_single_note(
 
 @router.put("/notes/{note_id}", response_model=NoteResponse)
 def update_note(
+    # Update a note only if it belongs to the current user.
     note_id: int,
     new_note: NoteCreate,
     db: Session = Depends(get_db),
@@ -49,6 +53,7 @@ def update_note(
 
 @router.delete("/notes/{note_id}", response_model=NoteResponse)
 def delete_note(
+    # Delete note from authenticated user.
     note_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -58,6 +63,7 @@ def delete_note(
 
 @router.post("/notes/{note_id}/summarize", response_model=NoteSummaryResponse)
 def summarize_note(
+    # AI summarizes note from authenticated user.
     note_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)

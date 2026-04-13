@@ -6,10 +6,9 @@ from .db import Base
 from datetime import datetime, UTC
 
 class Note(Base):
-    # nume tabel in postgres
+    # Table name in postgres
     __tablename__ = "notes"
 
-    # id cu primary key autoincrement
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     title: Mapped[str] = mapped_column(String(512), nullable=False)
     content: Mapped[str] = mapped_column(String(2048), nullable=False)
@@ -25,6 +24,7 @@ class Note(Base):
         )
 
 class User(Base):
+    # Table name in postgres
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)

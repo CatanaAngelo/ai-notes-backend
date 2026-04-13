@@ -1,3 +1,4 @@
+# Wrapper around OpenAI API to isolate external dependency from business logic.
 from openai import OpenAI
 from dotenv import load_dotenv
 from .schemas import AskAIRequest
@@ -10,6 +11,7 @@ if not os.getenv("OPENAI_API_KEY"):
     raise RuntimeError("Missing OPENAI_API_KEY")
 
 def ask_ai(req: AskAIRequest) -> str:
+    # Send prompt to OpenAI and return generated response.
     response = client.responses.create(
         input = req.prompt,
         model = req.model,
@@ -20,6 +22,7 @@ def ask_ai(req: AskAIRequest) -> str:
     return response.output_text
 
 def summarize(text: str) -> str:
+    # Send user string to OpenAI and return summarize response.
     response = client.chat.completions.create(
         model="gpt-4.1-mini",
         messages=[

@@ -20,7 +20,6 @@ def test_create_note_success(client, auth_headers):
     assert "id" in body
     assert "created_at" in body
 
-
 def test_create_note_requires_auth(client):
     response = client.post(
         "/notes/",
@@ -31,7 +30,6 @@ def test_create_note_requires_auth(client):
     )
 
     assert response.status_code == 401
-
 
 def test_invalid_input_422(client, auth_headers):
     response = client.post(
@@ -44,7 +42,6 @@ def test_invalid_input_422(client, auth_headers):
     )
 
     assert response.status_code == 422
-
 
 def test_get_existing_note(client, auth_headers):
     create_response = client.post(
@@ -61,7 +58,6 @@ def test_get_existing_note(client, auth_headers):
 
     assert response.status_code == 200
     assert response.json()["id"] == note_id
-
 
 def test_update_existing_note(client, auth_headers):
     create_response = client.post(
@@ -87,7 +83,6 @@ def test_update_existing_note(client, auth_headers):
     assert response.json()["title"] == "New title"
     assert response.json()["content"] == "New content here"
 
-
 def test_delete_existing_note(client, auth_headers):
     create_response = client.post(
         "/notes/",
@@ -104,7 +99,6 @@ def test_delete_existing_note(client, auth_headers):
 
     get_response = client.get(f"/notes/{note_id}", headers=auth_headers)
     assert get_response.status_code == 404
-
 
 def test_get_only_own_notes(client, auth_headers):
     client.post(

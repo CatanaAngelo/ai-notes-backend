@@ -11,6 +11,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 def create_user(db: Session, user_data: UserCreate) -> User:
+    # Check if a user with the same email already exists.
     existing_user = db.query(User).filter(User.email == user_data.email).first()
 
     if existing_user is not None:
@@ -19,6 +20,7 @@ def create_user(db: Session, user_data: UserCreate) -> User:
     
     user = User(
         email=user_data.email,
+        # Hash the password before storing it in the database.
         hashed_password=hash_password(user_data.password),
         is_active=True,
     )
@@ -31,6 +33,7 @@ def create_user(db: Session, user_data: UserCreate) -> User:
     return user
 
 def login_user(db: Session, email: str, password: str) -> User:
+    # Check if the user email exists.
     user = db.query(User).filter(User.email == email).first()
 
     if user is None:

@@ -3,7 +3,8 @@ from typing import Generator
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
-# aici se citesc variabilele din docker compose
+# Create SQLAlchemy engine using environment variables.
+# This allows different configurations for dev, test, and production.
 DB_HOST = os.getenv("DB_HOST", "localhost")
 DB_PORT = int(os.getenv("DB_PORT", "5432"))
 DB_USER = os.getenv("DB_USER", "notes_user")
@@ -12,21 +13,21 @@ DB_NAME = os.getenv("DB_NAME", "notes_db")
 
 DATABASE_URL = (f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
 
-# engine = conexiunea cu baza de date
+# Connecting to the database
 engine = create_engine(DATABASE_URL)
 
-# base este clasa din care vor mosteni toate modelele
 class Base(DeclarativeBase):
     pass
 
-# factory pentru sesiuni de baza de date
+# Sesions for the database
 SessionLocal = sessionmaker(
     bind=engine,
     autoflush=False,
     autocommit=False,
 )
 
-# dependency pentru FastAPI
+# Dependency used in FastAPI routes to provide a database session.
+# Ensures proper opening and closing of DB connections.
 def get_db():
     db = SessionLocal()
     try:

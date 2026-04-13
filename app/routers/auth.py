@@ -12,13 +12,16 @@ router = APIRouter()
 
 @router.post("/register", response_model=UserResponse, status_code=201)
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
+    # Register a new user account.
     return users_service.create_user(db, user_data)
 
 @router.post("/login", response_model=TokenResponse)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    # Login endpoint using OAuth2PasswordRequestForm (username = email).
     user = users_service.login_user(db, form_data.username, form_data.password)
     token = create_access_token({"sub": user.email})
 
+    # Generate JWT token after successful authentication.
     return TokenResponse(
         access_token=token,
         token_type="bearer"

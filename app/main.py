@@ -1,20 +1,13 @@
-# in main importam FastAPI, definim lifespan, cream app si includem routers, atat
+# In main we import FastAPI, define lifespan, create app and include routers
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
-from .db import engine, Base
 from .routers import notes, ai, auth
 
 import logging
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # startup
-    
-    # deoarece am trecut pe alembic nu mai am nevoie de aceasta
-    # Base.metadata.create_all(bind=engine)
-    
-    # shutdown
     yield
 
 app = FastAPI(lifespan=lifespan)
@@ -27,9 +20,3 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(name)s %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S"
     )
-
-# $env:DB_HOST="localhost"
-# $env:DB_PORT="5432"
-# $env:DB_USER="notes_user"
-# $env:DB_PASSWORD="notes_password"
-# $env:DB_NAME="notes_db"

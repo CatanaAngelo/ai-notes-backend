@@ -9,6 +9,7 @@ from app.main import app
 from app.db import get_db
 from app.models import Base
 
+# Override the database dependency to use an in-memory SQLite database for tests.
 os.environ.setdefault("OPENAI_API_KEY", "test-key")
 os.environ.setdefault("DB_HOST", "localhost")
 os.environ.setdefault("DB_PORT", "5432")
@@ -23,13 +24,12 @@ engine = create_engine(
     connect_args={"check_same_thread": False},
     poolclass=StaticPool,
 )
-
+# Create a test client with isolated database.
 TestingSessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
     bind=engine,
 )
-
 
 def override_get_db():
     db = TestingSessionLocal()
@@ -38,9 +38,7 @@ def override_get_db():
     finally:
         db.close()
 
-
 app.dependency_overrides[get_db] = override_get_db
-
 
 @pytest.fixture(autouse=True)
 def setup_database():
@@ -49,11 +47,9 @@ def setup_database():
     yield
     Base.metadata.drop_all(bind=engine)
 
-
 @pytest.fixture
 def client():
     return TestClient(app)
-
 
 @pytest.fixture
 def user_token(client):
@@ -77,7 +73,6 @@ def user_token(client):
 
     token = login_response.json()["access_token"]
     return token
-
 
 @pytest.fixture
 def auth_headers(user_token):
